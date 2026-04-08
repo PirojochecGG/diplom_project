@@ -1,0 +1,15 @@
+*.docx
+*.vsdx
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+.env
+server/data/
+client/node_modules/
+client/dist/
+backend/data/
+frontend/node_modules/
+frontend/dist/
+*.zip
+*.codex
