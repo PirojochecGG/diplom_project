@@ -204,61 +204,7 @@ http://127.0.0.1:5173
 
 ![STIX Visualizer](docs/screenshots/stix-visualizer.png)
 
-## Проверка Git-правил для `backend/data`
-
-Файлы ATT&CK должны отслеживаться Git, а остальные файлы в `backend/data` должны игнорироваться.
-
-Проверка игнорирования SQLite-базы:
-
-```bash
-git check-ignore -v backend/data/cti.db
-```
-
-Команда должна показать правило из `.gitignore`.
-
-Проверка ATT&CK JSON:
-
-```bash
-git check-ignore -v backend/data/enterprise-attack.json
-git check-ignore -v backend/data/ics-attack.json
-git check-ignore -v backend/data/mobile-attack.json
-```
-
-Для этих трех файлов команда не должна выводить ignore-правило.
-
 ## Типовые проблемы
-
-### Backend не запускается: `No module named uvicorn`
-
-Установите зависимости из активированного виртуального окружения:
-
-```bash
-python -m pip install -r requirements.txt
-```
-
-### Frontend не открывается
-
-Проверьте, что dev server запущен из папки `frontend`:
-
-```bash
-npm run dev
-```
-
-Откройте URL, который Vite выводит в терминале. По умолчанию это `http://127.0.0.1:5173`.
-
-### Frontend показывает ошибку загрузки данных
-
-Проверьте, что backend работает:
-
-```bash
-curl http://127.0.0.1:8000/health
-```
-
-На Windows можно использовать:
-
-```powershell
-Invoke-RestMethod http://127.0.0.1:8000/health
-```
 
 ### ATT&CK техники не появились
 
