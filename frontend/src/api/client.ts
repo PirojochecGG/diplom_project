@@ -18,8 +18,15 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 
 export const api = {
   listIncidents: () => request<Incident[]>("/api/incidents"),
-  createIncident: (payload: { title: string; description: string; source?: string }) =>
-    request<Incident>("/api/incidents", { method: "POST", body: JSON.stringify(payload) }),
+  createIncident: (payload: {
+    title: string;
+    description: string;
+    source?: string;
+  }) =>
+    request<Incident>("/api/incidents", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    }),
   getIncident: (id: number) => request<Incident>(`/api/incidents/${id}`),
   extractIncident: (id: number) =>
     request<Ioc[]>(`/api/incidents/${id}/extract`, { method: "POST" }),
@@ -32,12 +39,30 @@ export const api = {
       attributes?: Record<string, string>;
       attack_technique_ids?: number[];
     },
-  ) => request<Ioc>(`/api/iocs/${id}`, { method: "PATCH", body: JSON.stringify(payload) }),
-  listAttackTechniques: () => request<AttackTechnique[]>("/api/attack-techniques"),
+  ) =>
+    request<Ioc>(`/api/iocs/${id}`, {
+      method: "PATCH",
+      body: JSON.stringify(payload),
+    }),
+  listAttackTechniques: () =>
+    request<AttackTechnique[]>("/api/attack-techniques"),
   listFeeds: () => request<Feed[]>("/api/feeds"),
-  createFeed: (payload: { name: string; incident_id: number; ioc_ids: number[] }) =>
-    request<Feed>("/api/feeds", { method: "POST", body: JSON.stringify(payload) }),
+  createFeed: (payload: {
+    name: string;
+    incident_id: number;
+    ioc_ids: number[];
+  }) =>
+    request<Feed>("/api/feeds", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    }),
   getFeed: (id: number) => request<Feed>(`/api/feeds/${id}`),
+  getFeedStix: (id: number) =>
+    request<{ bundle: StixBundle; saved_path: string }>(
+      `/api/feeds/${id}/stix`,
+    ),
   exportFeed: (id: number) =>
-    request<{ bundle: StixBundle; saved_path: string }>(`/api/feeds/${id}/export/stix`),
+    request<{ bundle: StixBundle; saved_path: string }>(
+      `/api/feeds/${id}/export/stix`,
+    ),
 };

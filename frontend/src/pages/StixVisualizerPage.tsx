@@ -17,22 +17,29 @@ import { StixBundle } from "../types/stix";
 interface Props {
   feeds: Feed[];
   selectedFeedId: number | null;
+  loading: boolean;
+  error: string | null;
   stixBundle: StixBundle | null;
   savedPath: string | null;
   onSelectFeed: (id: number) => void;
-  onExportFeed: (id: number) => Promise<void>;
+  onLoadFeedStix: (id: number) => Promise<void>;
 }
 
 export function StixVisualizerPage({
   feeds,
   selectedFeedId,
+  loading,
+  error,
   stixBundle,
   savedPath,
   onSelectFeed,
-  onExportFeed,
+  onLoadFeedStix,
 }: Props) {
+  const selectedFeed = feeds.find((feed) => feed.id === selectedFeedId) ?? null;
+  const hasSavedBundle = Boolean(selectedFeed?.stix_bundle_path);
+
   return (
-    <Stack spacing={3}>
+    <Stack spacing={3} sx={{ minWidth: 0, width: "100%", maxWidth: "100%" }}>
       <Box>
         <Typography variant="h4">STIX Visualizer</Typography>
         <Typography color="text.secondary">
@@ -40,8 +47,8 @@ export function StixVisualizerPage({
         </Typography>
       </Box>
 
-      <Paper sx={{ p: 3 }}>
-        <Stack spacing={2}>
+      <Paper sx={{ p: 3, minWidth: 0, maxWidth: "100%", overflow: "hidden" }}>
+        <Stack spacing={2} sx={{ minWidth: 0 }}>
           <TextField
             select
             label="Feed"
@@ -55,29 +62,55 @@ export function StixVisualizerPage({
             ))}
           </TextField>
 
-          <Box sx={{ display: "flex", justifyContent: "space-between", gap: 2, flexWrap: "wrap" }}>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              gap: 2,
+              flexWrap: "wrap",
+            }}
+          >
             <Typography color="text.secondary">
-              {selectedFeedId
-                ? "Generate or refresh the STIX bundle for the selected feed before rendering the graph."
-                : "Choose a feed to render its STIX bundle."}
+              {!selectedFeed
+                ? "Choose a feed to render its previously exported STIX bundle."
+                : hasSavedBundle
+                  ? "Load the saved STIX bundle for the selected feed."
+                  : "This feed has no saved STIX bundle yet. Export it on the feeds page first."}
             </Typography>
             <Button
               variant="contained"
               startIcon={<InsightsOutlinedIcon />}
-              onClick={() => selectedFeedId && onExportFeed(selectedFeedId)}
-              disabled={!selectedFeedId}
+              onClick={() => selectedFeedId && onLoadFeedStix(selectedFeedId)}
+              disabled={!selectedFeedId || !hasSavedBundle || loading}
             >
-              Render STIX Graph
+              Visualize
             </Button>
           </Box>
 
-          {savedPath && (
-            <Alert severity="success" icon={<DownloadOutlinedIcon />}>
-              Latest bundle saved to: {savedPath}
+          {!selectedFeed && (
+            <Alert severity="info">
+              Select a feed to load an already exported STIX bundle.
             </Alert>
           )}
 
-          <StixBundleViewer bundle={stixBundle} />
+          {selectedFeed && !hasSavedBundle && (
+            <Alert severity="warning">
+              No saved STIX bundle found for this feed. Go to Feed export and
+              run `Export STIX JSON` first.
+            </Alert>
+          )}
+
+          {savedPath && (
+            <Alert severity="success" icon={<DownloadOutlinedIcon />}>
+              Loaded bundle from: {savedPath}
+            </Alert>
+          )}
+
+          <StixBundleViewer
+            bundle={stixBundle}
+            loading={loading}
+            error={error}
+          />
         </Stack>
       </Paper>
     </Stack>

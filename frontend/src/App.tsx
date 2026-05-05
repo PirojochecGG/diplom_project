@@ -15,10 +15,14 @@ export default function App() {
   const [incidents, setIncidents] = useState<Incident[]>([]);
   const [feeds, setFeeds] = useState<Feed[]>([]);
   const [techniques, setTechniques] = useState<AttackTechnique[]>([]);
-  const [selectedIncidentId, setSelectedIncidentId] = useState<number | null>(null);
+  const [selectedIncidentId, setSelectedIncidentId] = useState<number | null>(
+    null,
+  );
   const [selectedFeedId, setSelectedFeedId] = useState<number | null>(null);
   const [stixBundle, setStixBundle] = useState<StixBundle | null>(null);
   const [savedPath, setSavedPath] = useState<string | null>(null);
+  const [stixLoading, setStixLoading] = useState(false);
+  const [stixError, setStixError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
 
   async function loadAll() {
@@ -38,7 +42,17 @@ export default function App() {
     void loadAll().catch((error: Error) => setMessage(error.message));
   }, []);
 
-  async function handleCreateIncident(payload: { title: string; description: string; source?: string }) {
+  function clearStixState() {
+    setStixBundle(null);
+    setSavedPath(null);
+    setStixError(null);
+  }
+
+  async function handleCreateIncident(payload: {
+    title: string;
+    description: string;
+    source?: string;
+  }) {
     await api.createIncident(payload);
     await loadAll();
     setMessage("Incident created");
@@ -73,24 +87,70 @@ export default function App() {
     setMessage("IoCs updated");
   }
 
-  async function handleCreateFeed(payload: { name: string; incident_id: number; ioc_ids: number[] }) {
+  async function handleCreateFeed(payload: {
+    name: string;
+    incident_id: number;
+    ioc_ids: number[];
+  }) {
     const feed = await api.createFeed(payload);
     await loadAll();
-    setSelectedFeedId(feed.id);
+    handleSelectFeed(feed.id);
     setMessage("Feed created");
   }
 
   async function handleExportFeed(feedId: number) {
-    const response = await api.exportFeed(feedId);
-    setStixBundle(response.bundle);
-    setSavedPath(response.saved_path);
-    setMessage("STIX bundle generated");
+    setStixLoading(true);
+    setStixError(null);
+    try {
+      const response = await api.exportFeed(feedId);
+      setStixBundle(response.bundle);
+      setSavedPath(response.saved_path);
+      await loadAll();
+      setMessage("STIX bundle generated");
+    } catch (error) {
+      const messageText =
+        error instanceof Error ? error.message : "Failed to export STIX bundle";
+      setStixError(messageText);
+      setMessage(messageText);
+    } finally {
+      setStixLoading(false);
+    }
+  }
+
+  async function handleLoadFeedStix(feedId: number) {
+    setStixLoading(true);
+    setStixError(null);
+    try {
+      const response = await api.getFeedStix(feedId);
+      setStixBundle(response.bundle);
+      setSavedPath(response.saved_path);
+      setMessage("Saved STIX bundle loaded");
+    } catch (error) {
+      setStixBundle(null);
+      setSavedPath(null);
+      const messageText =
+        error instanceof Error
+          ? error.message
+          : "Failed to load saved STIX bundle";
+      setStixError(messageText);
+      setMessage(messageText);
+    } finally {
+      setStixLoading(false);
+    }
+  }
+
+  function handleSelectFeed(feedId: number) {
+    setSelectedFeedId(feedId);
+    clearStixState();
   }
 
   return (
     <Layout>
       <Routes>
-        <Route path="/" element={<DashboardPage incidents={incidents} feeds={feeds} />} />
+        <Route
+          path="/"
+          element={<DashboardPage incidents={incidents} feeds={feeds} />}
+        />
         <Route
           path="/incidents"
           element={
@@ -126,7 +186,7 @@ export default function App() {
               stixBundle={stixBundle}
               savedPath={savedPath}
               onSelectIncident={setSelectedIncidentId}
-              onSelectFeed={setSelectedFeedId}
+              onSelectFeed={handleSelectFeed}
               onCreateFeed={handleCreateFeed}
               onExportFeed={handleExportFeed}
             />
@@ -138,16 +198,26 @@ export default function App() {
             <StixVisualizerPage
               feeds={feeds}
               selectedFeedId={selectedFeedId}
+              loading={stixLoading}
+              error={stixError}
               stixBundle={stixBundle}
               savedPath={savedPath}
-              onSelectFeed={setSelectedFeedId}
-              onExportFeed={handleExportFeed}
+              onSelectFeed={handleSelectFeed}
+              onLoadFeedStix={handleLoadFeedStix}
             />
           }
         />
       </Routes>
-      <Snackbar open={Boolean(message)} autoHideDuration={3000} onClose={() => setMessage(null)}>
-        <Alert severity="success" onClose={() => setMessage(null)} sx={{ width: "100%" }}>
+      <Snackbar
+        open={Boolean(message)}
+        autoHideDuration={3000}
+        onClose={() => setMessage(null)}
+      >
+        <Alert
+          severity="success"
+          onClose={() => setMessage(null)}
+          sx={{ width: "100%" }}
+        >
           {message}
         </Alert>
       </Snackbar>

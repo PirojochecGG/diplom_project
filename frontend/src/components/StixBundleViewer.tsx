@@ -2,17 +2,11 @@ import { Stix2Visualizer } from "@aarpaardev/stix-visualizer";
 import HubOutlinedIcon from "@mui/icons-material/HubOutlined";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import WarningAmberOutlinedIcon from "@mui/icons-material/WarningAmberOutlined";
-import {
-  Alert,
-  Box,
-  Chip,
-  Paper,
-  Stack,
-  Typography,
-} from "@mui/material";
+import { Alert, Box, Chip, Paper, Stack, Typography } from "@mui/material";
 import { useEffect, useRef, useState } from "react";
 import { StixBundle } from "../types/stix";
 import { normalizeStixBundle, summarizeStixBundle } from "../utils/stix";
+import { appColors } from "../theme/theme";
 
 interface Props {
   bundle: StixBundle | null;
@@ -20,18 +14,22 @@ interface Props {
   error?: string | null;
 }
 
-export function StixBundleViewer({ bundle, loading = false, error = null }: Props) {
-  const containerRef = useRef<HTMLDivElement | null>(null);
+export function StixBundleViewer({
+  bundle,
+  loading = false,
+  error = null,
+}: Props) {
+  const graphRef = useRef<HTMLDivElement | null>(null);
   const [width, setWidth] = useState(0);
 
   useEffect(() => {
-    const node = containerRef.current;
+    const node = graphRef.current;
     if (!node) {
       return undefined;
     }
 
     const syncWidth = () => {
-      setWidth(Math.max(node.clientWidth - 2, 320));
+      setWidth(Math.max(Math.floor(node.clientWidth), 320));
     };
 
     syncWidth();
@@ -53,7 +51,7 @@ export function StixBundleViewer({ bundle, loading = false, error = null }: Prop
   if (!bundle) {
     return (
       <Alert severity="info" icon={<InfoOutlinedIcon />}>
-        Export a feed to inspect the STIX graph and the raw bundle JSON.
+        Load a saved STIX bundle to inspect the graph.
       </Alert>
     );
   }
@@ -63,26 +61,57 @@ export function StixBundleViewer({ bundle, loading = false, error = null }: Prop
     const summary = summarizeStixBundle(normalizedBundle);
 
     return (
-      <Stack spacing={2}>
-        <Stack direction={{ xs: "column", md: "row" }} spacing={1.5} useFlexGap sx={{ flexWrap: "wrap" }}>
-          <Chip icon={<HubOutlinedIcon />} label={`Objects: ${summary.totalObjects}`} color="primary" variant="outlined" />
-          <Chip label={`Indicators: ${summary.indicators}`} variant="outlined" />
-          <Chip label={`ATT&CK nodes: ${summary.attackPatterns}`} variant="outlined" />
-          <Chip label={`Relationships: ${summary.relationships}`} variant="outlined" />
+      <Stack spacing={2} sx={{ minWidth: 0, width: "100%", maxWidth: "100%" }}>
+        <Stack
+          direction={{ xs: "column", md: "row" }}
+          spacing={1.5}
+          useFlexGap
+          sx={{ flexWrap: "wrap" }}
+        >
+          <Chip
+            icon={<HubOutlinedIcon />}
+            label={`Objects: ${summary.totalObjects}`}
+            color="primary"
+            variant="outlined"
+          />
+          <Chip
+            label={`Indicators: ${summary.indicators}`}
+            variant="outlined"
+          />
+          <Chip
+            label={`ATT&CK nodes: ${summary.attackPatterns}`}
+            variant="outlined"
+          />
+          <Chip
+            label={`Relationships: ${summary.relationships}`}
+            variant="outlined"
+          />
         </Stack>
 
         <Paper
           variant="outlined"
-          ref={containerRef}
           sx={{
             p: 1.5,
+            minWidth: 0,
+            width: "100%",
+            maxWidth: "100%",
+            boxSizing: "border-box",
             minHeight: 560,
             overflow: "hidden",
             background:
-              "radial-gradient(circle at top, rgba(125, 211, 252, 0.08), transparent 35%), rgba(6, 16, 27, 0.9)",
+              `radial-gradient(circle at top, ${appColors.primarySoft}, transparent 35%), ${appColors.surfaceMuted}`,
           }}
         >
-          <Box sx={{ display: "flex", justifyContent: "space-between", gap: 2, mb: 1.5, px: 1, flexWrap: "wrap" }}>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              gap: 2,
+              mb: 1.5,
+              px: 1,
+              flexWrap: "wrap",
+            }}
+          >
             <Box>
               <Typography variant="h6">STIX Graph</Typography>
               <Typography variant="body2" color="text.secondary">
@@ -90,16 +119,32 @@ export function StixBundleViewer({ bundle, loading = false, error = null }: Prop
               </Typography>
             </Box>
             <Typography variant="body2" color="text.secondary">
-              Drag nodes, zoom the canvas, and use the legend to filter report noise.
+              Drag nodes, zoom the canvas, and use the legend to filter report
+              noise.
             </Typography>
           </Box>
 
           {summary.totalObjects === 0 ? (
             <Alert severity="warning" icon={<WarningAmberOutlinedIcon />}>
-              The bundle is valid, but it does not contain any STIX objects to render.
+              The bundle is valid, but it does not contain any STIX objects to
+              render.
             </Alert>
           ) : (
-            <Box sx={{ height: 500, borderRadius: 2, overflow: "hidden" }}>
+            <Box
+              ref={graphRef}
+              sx={{
+                position: "relative",
+                height: 500,
+                width: "100%",
+                maxWidth: "100%",
+                minWidth: 0,
+                borderRadius: 1,
+                overflow: "hidden",
+                "& canvas": {
+                  maxWidth: "100%",
+                },
+              }}
+            >
               {width > 0 && (
                 <Stix2Visualizer
                   data={normalizedBundle}
@@ -109,11 +154,11 @@ export function StixBundleViewer({ bundle, loading = false, error = null }: Prop
                   legendOptions={{
                     display: true,
                     position: "bottom-left",
-                    containerStyle: {
-                      background: "rgba(9, 17, 31, 0.9)",
-                      border: "1px solid rgba(125, 211, 252, 0.16)",
+                  containerStyle: {
+                      background: appColors.surfaceMuted,
+                      border: `1px solid ${appColors.borderStrong}`,
                       borderRadius: "12px",
-                      color: "#f8fafc",
+                      color: appColors.text,
                       padding: "10px 12px",
                     },
                     displayignoreReportObjectRefsCheckBox: true,
@@ -125,28 +170,29 @@ export function StixBundleViewer({ bundle, loading = false, error = null }: Prop
                   linkOptions={{
                     distance: 110,
                     curvature: 0.18,
-                    color: "rgba(125, 211, 252, 0.35)",
+                    color: appColors.primaryLine,
                   }}
                   directionOptions={{
                     displayDirections: true,
                     displayParticles: false,
                     directionSize: 4,
                     directionalParticles: 0,
-                    directionalParticlesAndArrowColor: "rgba(245, 158, 11, 0.9)",
+                    directionalParticlesAndArrowColor:
+                      appColors.secondaryStrong,
                   }}
                   nodeLabelOptions={{
                     display: true,
                     fontSize: 6,
-                    color: "rgba(226, 232, 240, 0.95)",
+                    color: appColors.text,
                     onZoomOutDisplay: false,
-                    backgroundColor: "rgba(9, 17, 31, 0.75)",
+                    backgroundColor: appColors.surfaceMuted,
                   }}
                   linkLabelOptions={{
                     display: true,
                     fontSize: 4,
-                    color: "rgba(148, 163, 184, 0.9)",
+                    color: appColors.textMuted,
                     onZoomOutDisplay: false,
-                    backgroundColor: "rgba(9, 17, 31, 0.75)",
+                    backgroundColor: appColors.surfaceMuted,
                   }}
                 />
               )}
@@ -156,7 +202,12 @@ export function StixBundleViewer({ bundle, loading = false, error = null }: Prop
       </Stack>
     );
   } catch (viewerError) {
-    const message = viewerError instanceof Error ? viewerError.message : "Unknown STIX parsing error.";
-    return <Alert severity="error">Unable to render STIX graph: {message}</Alert>;
+    const message =
+      viewerError instanceof Error
+        ? viewerError.message
+        : "Unknown STIX parsing error.";
+    return (
+      <Alert severity="error">Unable to render STIX graph: {message}</Alert>
+    );
   }
 }

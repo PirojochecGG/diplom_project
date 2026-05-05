@@ -5,10 +5,15 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 }
 
 function isStringArray(value: unknown): value is string[] {
-  return Array.isArray(value) && value.every((item) => typeof item === "string");
+  return (
+    Array.isArray(value) && value.every((item) => typeof item === "string")
+  );
 }
 
-function normalizeObject(item: unknown, fallbackSpecVersion: string): StixObject | null {
+function normalizeObject(
+  item: unknown,
+  fallbackSpecVersion: string,
+): StixObject | null {
   if (!isRecord(item)) {
     return null;
   }
@@ -23,17 +28,27 @@ function normalizeObject(item: unknown, fallbackSpecVersion: string): StixObject
     ...item,
     type,
     id,
-    spec_version: typeof item.spec_version === "string" ? item.spec_version : fallbackSpecVersion,
+    spec_version:
+      typeof item.spec_version === "string"
+        ? item.spec_version
+        : fallbackSpecVersion,
   };
 
   if (type === "report") {
-    normalized.object_refs = isStringArray(item.object_refs) ? item.object_refs : [];
+    normalized.object_refs = isStringArray(item.object_refs)
+      ? item.object_refs
+      : [];
   }
 
   if (type === "relationship") {
-    normalized.source_ref = typeof item.source_ref === "string" ? item.source_ref : undefined;
-    normalized.target_ref = typeof item.target_ref === "string" ? item.target_ref : undefined;
-    normalized.relationship_type = typeof item.relationship_type === "string" ? item.relationship_type : "related-to";
+    normalized.source_ref =
+      typeof item.source_ref === "string" ? item.source_ref : undefined;
+    normalized.target_ref =
+      typeof item.target_ref === "string" ? item.target_ref : undefined;
+    normalized.relationship_type =
+      typeof item.relationship_type === "string"
+        ? item.relationship_type
+        : "related-to";
   }
 
   return normalized;
@@ -52,7 +67,8 @@ export function normalizeStixBundle(input: unknown): StixBundle {
     throw new Error("Bundle id is missing.");
   }
 
-  const specVersion = typeof input.spec_version === "string" ? input.spec_version : "2.1";
+  const specVersion =
+    typeof input.spec_version === "string" ? input.spec_version : "2.1";
   const rawObjects = Array.isArray(input.objects) ? input.objects : [];
   const objects = rawObjects
     .map((item) => normalizeObject(item, specVersion))
@@ -67,10 +83,13 @@ export function normalizeStixBundle(input: unknown): StixBundle {
 }
 
 export function summarizeStixBundle(bundle: StixBundle) {
-  const counts = bundle.objects.reduce<Record<string, number>>((accumulator, item) => {
-    accumulator[item.type] = (accumulator[item.type] ?? 0) + 1;
-    return accumulator;
-  }, {});
+  const counts = bundle.objects.reduce<Record<string, number>>(
+    (accumulator, item) => {
+      accumulator[item.type] = (accumulator[item.type] ?? 0) + 1;
+      return accumulator;
+    },
+    {},
+  );
 
   return {
     totalObjects: bundle.objects.length,

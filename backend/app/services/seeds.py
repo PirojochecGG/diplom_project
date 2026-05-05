@@ -90,7 +90,7 @@ def load_attack_techniques() -> list[dict[str, str]]:
             phases = [
                 _format_tactic(phase["phase_name"])
                 for phase in obj.get("kill_chain_phases", [])
-                if phase.get("kill_chain_name") == "mitre-attack" and phase.get("phase_name")
+                if phase.get("kill_chain_name", "").startswith("mitre-") and phase.get("phase_name")
             ]
             tactic = ", ".join(dict.fromkeys(phases)) if phases else "Unknown"
             reference_url = attack_reference.get(

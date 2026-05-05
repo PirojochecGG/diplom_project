@@ -10,6 +10,7 @@ import {
   Typography,
 } from "@mui/material";
 import { useState } from "react";
+import { appColors } from "../theme/theme";
 import { Feed, Incident } from "../types/api";
 import { StixBundle } from "../types/stix";
 
@@ -22,7 +23,11 @@ interface Props {
   savedPath: string | null;
   onSelectIncident: (id: number) => void;
   onSelectFeed: (id: number) => void;
-  onCreateFeed: (payload: { name: string; incident_id: number; ioc_ids: number[] }) => Promise<void>;
+  onCreateFeed: (payload: {
+    name: string;
+    incident_id: number;
+    ioc_ids: number[];
+  }) => Promise<void>;
   onExportFeed: (id: number) => Promise<void>;
 }
 
@@ -39,8 +44,10 @@ export function FeedsPage({
   onExportFeed,
 }: Props) {
   const [feedName, setFeedName] = useState("");
-  const selectedIncident = incidents.find((item) => item.id === selectedIncidentId) ?? null;
-  const confirmedIocs = selectedIncident?.iocs.filter((item) => item.status === "confirmed") ?? [];
+  const selectedIncident =
+    incidents.find((item) => item.id === selectedIncidentId) ?? null;
+  const confirmedIocs =
+    selectedIncident?.iocs.filter((item) => item.status === "confirmed") ?? [];
 
   return (
     <Stack spacing={3}>
@@ -59,10 +66,23 @@ export function FeedsPage({
               </MenuItem>
             ))}
           </TextField>
-          <TextField label="Feed name" value={feedName} onChange={(event) => setFeedName(event.target.value)} />
-          <Box sx={{ display: "flex", justifyContent: "space-between", gap: 2, flexWrap: "wrap" }}>
+          <TextField
+            label="Feed name"
+            value={feedName}
+            onChange={(event) => setFeedName(event.target.value)}
+          />
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              gap: 2,
+              flexWrap: "wrap",
+            }}
+          >
             <Typography color="text.secondary">
-              {selectedIncident ? `Confirmed IoCs available for feed: ${confirmedIocs.length}` : "Select incident with reviewed IoCs."}
+              {selectedIncident
+                ? `Confirmed IoCs available for feed: ${confirmedIocs.length}`
+                : "Select incident with reviewed IoCs."}
             </Typography>
             <Button
               variant="contained"
@@ -96,9 +116,18 @@ export function FeedsPage({
               </MenuItem>
             ))}
           </TextField>
-          <Box sx={{ display: "flex", justifyContent: "space-between", gap: 2, flexWrap: "wrap" }}>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              gap: 2,
+              flexWrap: "wrap",
+            }}
+          >
             <Typography color="text.secondary">
-              {selectedFeedId ? "Export the selected feed to STIX 2.1 bundle." : "Choose a feed to preview JSON export."}
+              {selectedFeedId
+                ? "Export the selected feed to STIX 2.1 bundle."
+                : "Choose a feed to preview JSON export."}
             </Typography>
             <Button
               variant="outlined"
@@ -109,11 +138,30 @@ export function FeedsPage({
               Export STIX JSON
             </Button>
           </Box>
-          {savedPath && <Alert severity="success">JSON saved to: {savedPath}</Alert>}
-          {!stixBundle && <Alert severity="info">Exported JSON will appear here for demo and verification.</Alert>}
+          {savedPath && (
+            <Alert severity="success">JSON saved to: {savedPath}</Alert>
+          )}
+          {!stixBundle && (
+            <Alert severity="info">
+              Exported JSON will appear here for demo and verification.
+            </Alert>
+          )}
           {stixBundle && (
-            <Paper variant="outlined" sx={{ p: 2, backgroundColor: "rgba(6, 16, 27, 0.8)", overflow: "auto" }}>
-              <pre style={{ margin: 0, whiteSpace: "pre-wrap", wordBreak: "break-word" }}>
+            <Paper
+              variant="outlined"
+              sx={{
+                p: 2,
+                backgroundColor: appColors.surfaceMuted,
+                overflow: "auto",
+              }}
+            >
+              <pre
+                style={{
+                  margin: 0,
+                  whiteSpace: "pre-wrap",
+                  wordBreak: "break-word",
+                }}
+              >
                 {JSON.stringify(stixBundle, null, 2)}
               </pre>
             </Paper>

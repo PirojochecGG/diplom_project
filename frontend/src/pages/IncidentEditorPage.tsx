@@ -16,7 +16,11 @@ interface Props {
   incidents: Incident[];
   selectedIncidentId: number | null;
   onSelectIncident: (id: number) => void;
-  onCreateIncident: (payload: { title: string; description: string; source?: string }) => Promise<void>;
+  onCreateIncident: (payload: {
+    title: string;
+    description: string;
+    source?: string;
+  }) => Promise<void>;
   onExtract: (id: number) => Promise<void>;
 }
 
@@ -32,13 +36,18 @@ export function IncidentEditorPage({
   const [description, setDescription] = useState("");
   const [busy, setBusy] = useState(false);
 
-  const selectedIncident = incidents.find((item) => item.id === selectedIncidentId) ?? null;
+  const selectedIncident =
+    incidents.find((item) => item.id === selectedIncidentId) ?? null;
 
   async function handleSubmit(event: FormEvent) {
     event.preventDefault();
     setBusy(true);
     try {
-      await onCreateIncident({ title, description, source: source || undefined });
+      await onCreateIncident({
+        title,
+        description,
+        source: source || undefined,
+      });
       setTitle("");
       setSource("");
       setDescription("");
@@ -52,8 +61,17 @@ export function IncidentEditorPage({
       <Typography variant="h4">Incident editor</Typography>
       <Paper component="form" onSubmit={handleSubmit} sx={{ p: 3 }}>
         <Stack spacing={2}>
-          <TextField label="Title" value={title} onChange={(event) => setTitle(event.target.value)} required />
-          <TextField label="Source" value={source} onChange={(event) => setSource(event.target.value)} />
+          <TextField
+            label="Title"
+            value={title}
+            onChange={(event) => setTitle(event.target.value)}
+            required
+          />
+          <TextField
+            label="Source"
+            value={source}
+            onChange={(event) => setSource(event.target.value)}
+          />
           <TextField
             label="Incident description"
             value={description}
@@ -85,20 +103,35 @@ export function IncidentEditorPage({
               </MenuItem>
             ))}
           </TextField>
-          <Box sx={{ display: "flex", justifyContent: "space-between", gap: 2, flexWrap: "wrap" }}>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              gap: 2,
+              flexWrap: "wrap",
+            }}
+          >
             <Typography color="text.secondary">
-              {selectedIncident ? `${selectedIncident.iocs.length} IoCs currently attached to the incident.` : "Choose an incident to extract IoCs."}
+              {selectedIncident
+                ? `${selectedIncident.iocs.length} IoCs currently attached to the incident.`
+                : "Choose an incident to extract IoCs."}
             </Typography>
             <Button
               variant="outlined"
               startIcon={<PlayArrowOutlinedIcon />}
-              onClick={() => selectedIncidentId && onExtract(selectedIncidentId)}
+              onClick={() =>
+                selectedIncidentId && onExtract(selectedIncidentId)
+              }
               disabled={!selectedIncidentId}
             >
               Run extraction
             </Button>
           </Box>
-          {selectedIncident && <Alert severity="info">Source: {selectedIncident.source || "not specified"}</Alert>}
+          {selectedIncident && (
+            <Alert severity="info">
+              Source: {selectedIncident.source || "not specified"}
+            </Alert>
+          )}
         </Stack>
       </Paper>
     </Stack>

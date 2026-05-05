@@ -101,12 +101,12 @@ async def get_incident(incident_id: int, db: Session = Depends(get_db)) -> Incid
 async def extract_incident_iocs(incident_id: int, db: Session = Depends(get_db)) -> list[Ioc]:
     incident = get_incident_or_404(db, incident_id)
     extracted = extract_iocs(incident.description)
-    existing_by_key = {(ioc.type, ioc.normalized_value): ioc for ioc in incident.iocs}
+
+    for ioc in list(incident.iocs):
+        db.delete(ioc)
+    db.flush()
 
     for candidate in extracted:
-        key = (candidate.type, candidate.normalized_value)
-        if key in existing_by_key:
-            continue
         db.add(
             Ioc(
                 incident_id=incident.id,
@@ -120,6 +120,7 @@ async def extract_incident_iocs(incident_id: int, db: Session = Depends(get_db))
         )
 
     db.commit()
+    db.expire_all()
     refreshed = get_incident_or_404(db, incident_id)
     return refreshed.iocs
 
@@ -202,4 +203,25 @@ async def export_feed_stix(feed_id: int, db: Session = Depends(get_db)) -> StixB
     bundle = build_stix_bundle(feed)
     output_path = build_export_filename(feed)
     output_path.write_text(json.dumps(bundle, indent=2), encoding="utf-8")
+    feed.stix_bundle_path = str(output_path)
+    feed.stix_exported_at = datetime.now(timezone.utc)
+    db.commit()
     return StixBundleResponse(bundle=bundle, saved_path=str(output_path))
+
+
+@router.get("/feeds/{feed_id}/stix", response_model=StixBundleResponse)
+async def get_feed_stix(feed_id: int, db: Session = Depends(get_db)) -> StixBundleResponse:
+    feed = get_feed_or_404(db, feed_id)
+    if not feed.stix_bundle_path:
+        raise HTTPException(status_code=404, detail="STIX bundle has not been exported for this feed yet")
+
+    bundle_path = Path(feed.stix_bundle_path)
+    if not bundle_path.exists():
+        raise HTTPException(status_code=404, detail="Saved STIX bundle file was not found")
+
+    try:
+        bundle = json.loads(bundle_path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        raise HTTPException(status_code=500, detail="Saved STIX bundle file is not valid JSON") from exc
+
+    return StixBundleResponse(bundle=bundle, saved_path=str(bundle_path))

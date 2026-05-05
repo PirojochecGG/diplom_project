@@ -34,11 +34,26 @@ interface Props {
   ) => Promise<void>;
 }
 
-export function ReviewPage({ incidents, selectedIncidentId, techniques, onSelectIncident, onSaveAll }: Props) {
-  const incident = incidents.find((item) => item.id === selectedIncidentId) ?? null;
+export function ReviewPage({
+  incidents,
+  selectedIncidentId,
+  techniques,
+  onSelectIncident,
+  onSaveAll,
+}: Props) {
+  const incident =
+    incidents.find((item) => item.id === selectedIncidentId) ?? null;
   const [isSaving, setIsSaving] = useState(false);
   const [drafts, setDrafts] = useState<
-    Record<number, { status: IocStatus; description: string; confidence: number; attackTechniqueIds: number[] }>
+    Record<
+      number,
+      {
+        status: IocStatus;
+        description: string;
+        confidence: number;
+        attackTechniqueIds: number[];
+      }
+    >
   >({});
 
   useEffect(() => {
@@ -70,7 +85,8 @@ export function ReviewPage({ incidents, selectedIncidentId, techniques, onSelect
           draft.status !== ioc.status ||
           draft.description !== (ioc.description ?? "") ||
           draft.confidence !== ioc.confidence ||
-          draft.attackTechniqueIds.join(",") !== ioc.attack_techniques.map((item) => item.id).join(",")
+          draft.attackTechniqueIds.join(",") !==
+            ioc.attack_techniques.map((item) => item.id).join(",")
         );
       }).length
     : 0;
@@ -113,13 +129,23 @@ export function ReviewPage({ incidents, selectedIncidentId, techniques, onSelect
           </MenuItem>
         ))}
       </TextField>
-      {!incident && <Alert severity="info">Create or select an incident to review extracted indicators.</Alert>}
+      {!incident && (
+        <Alert severity="info">
+          Create or select an incident to review extracted indicators.
+        </Alert>
+      )}
       {incident && (
         <Paper sx={{ overflow: "auto", p: 2 }}>
           <Stack spacing={2}>
-            <Stack direction="row" justifyContent="space-between" alignItems="center">
+            <Stack
+              direction="row"
+              justifyContent="space-between"
+              alignItems="center"
+            >
               <Typography color="text.secondary">
-                {dirtyCount > 0 ? `Unsaved changes: ${dirtyCount}` : "No unsaved changes"}
+                {dirtyCount > 0
+                  ? `Unsaved changes: ${dirtyCount}`
+                  : "No unsaved changes"}
               </Typography>
               <Button
                 variant="contained"
@@ -147,7 +173,9 @@ export function ReviewPage({ incidents, selectedIncidentId, techniques, onSelect
                     <TableCell>
                       <Chip size="small" label={ioc.type} />
                     </TableCell>
-                    <TableCell sx={{ minWidth: 220 }}>{ioc.normalized_value}</TableCell>
+                    <TableCell sx={{ minWidth: 220 }}>
+                      {ioc.normalized_value}
+                    </TableCell>
                     <TableCell>
                       <TextField
                         select
@@ -161,7 +189,9 @@ export function ReviewPage({ incidents, selectedIncidentId, techniques, onSelect
                                 status: ioc.status,
                                 description: ioc.description ?? "",
                                 confidence: ioc.confidence,
-                                attackTechniqueIds: ioc.attack_techniques.map((item) => item.id),
+                                attackTechniqueIds: ioc.attack_techniques.map(
+                                  (item) => item.id,
+                                ),
                               }),
                               status: event.target.value as IocStatus,
                             },
@@ -186,7 +216,9 @@ export function ReviewPage({ incidents, selectedIncidentId, techniques, onSelect
                                 status: ioc.status,
                                 description: ioc.description ?? "",
                                 confidence: ioc.confidence,
-                                attackTechniqueIds: ioc.attack_techniques.map((item) => item.id),
+                                attackTechniqueIds: ioc.attack_techniques.map(
+                                  (item) => item.id,
+                                ),
                               }),
                               confidence: Number(event.target.value),
                             },
@@ -200,7 +232,9 @@ export function ReviewPage({ incidents, selectedIncidentId, techniques, onSelect
                       <TextField
                         size="small"
                         fullWidth
-                        value={drafts[ioc.id]?.description ?? ioc.description ?? ""}
+                        value={
+                          drafts[ioc.id]?.description ?? ioc.description ?? ""
+                        }
                         onChange={(event) =>
                           setDrafts((current) => ({
                             ...current,
@@ -209,7 +243,9 @@ export function ReviewPage({ incidents, selectedIncidentId, techniques, onSelect
                                 status: ioc.status,
                                 description: ioc.description ?? "",
                                 confidence: ioc.confidence,
-                                attackTechniqueIds: ioc.attack_techniques.map((item) => item.id),
+                                attackTechniqueIds: ioc.attack_techniques.map(
+                                  (item) => item.id,
+                                ),
                               }),
                               description: event.target.value,
                             },
@@ -221,9 +257,21 @@ export function ReviewPage({ incidents, selectedIncidentId, techniques, onSelect
                       <Autocomplete
                         multiple
                         options={techniques}
-                        value={techniques.filter((item) => (drafts[ioc.id]?.attackTechniqueIds ?? []).includes(item.id))}
-                        getOptionLabel={(option) => `${option.attack_id} ${option.technique_name}`}
-                        renderInput={(params) => <TextField {...params} size="small" placeholder="Select techniques" />}
+                        value={techniques.filter((item) =>
+                          (drafts[ioc.id]?.attackTechniqueIds ?? []).includes(
+                            item.id,
+                          ),
+                        )}
+                        getOptionLabel={(option) =>
+                          `${option.attack_id} ${option.technique_name}`
+                        }
+                        renderInput={(params) => (
+                          <TextField
+                            {...params}
+                            size="small"
+                            placeholder="Select techniques"
+                          />
+                        )}
                         onChange={(_, values) =>
                           setDrafts((current) => ({
                             ...current,
@@ -232,7 +280,9 @@ export function ReviewPage({ incidents, selectedIncidentId, techniques, onSelect
                                 status: ioc.status,
                                 description: ioc.description ?? "",
                                 confidence: ioc.confidence,
-                                attackTechniqueIds: ioc.attack_techniques.map((item) => item.id),
+                                attackTechniqueIds: ioc.attack_techniques.map(
+                                  (item) => item.id,
+                                ),
                               }),
                               attackTechniqueIds: values.map((item) => item.id),
                             },
@@ -240,7 +290,12 @@ export function ReviewPage({ incidents, selectedIncidentId, techniques, onSelect
                         }
                         renderTags={(value, getTagProps) =>
                           value.map((option, index) => (
-                            <Chip {...getTagProps({ index })} key={option.id} size="small" label={option.attack_id} />
+                            <Chip
+                              {...getTagProps({ index })}
+                              key={option.id}
+                              size="small"
+                              label={option.attack_id}
+                            />
                           ))
                         }
                       />

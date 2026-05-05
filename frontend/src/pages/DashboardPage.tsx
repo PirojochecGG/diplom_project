@@ -12,7 +12,13 @@ function StatCard({ label, value }: { label: string; value: number }) {
   );
 }
 
-export function DashboardPage({ incidents, feeds }: { incidents: Incident[]; feeds: Feed[] }) {
+export function DashboardPage({
+  incidents,
+  feeds,
+}: {
+  incidents: Incident[];
+  feeds: Feed[];
+}) {
   const iocs = incidents.flatMap((incident) => incident.iocs);
 
   return (
@@ -20,7 +26,8 @@ export function DashboardPage({ incidents, feeds }: { incidents: Incident[]; fee
       <div>
         <Typography variant="h4">Operational overview</Typography>
         <Typography color="text.secondary">
-          Минимальная витрина для практической части: события, извлеченные IoC, ATT&CK и экспорт feed в STIX.
+          Минимальная витрина для практической части: события, извлеченные IoC,
+          ATT&CK и экспорт feed в STIX.
         </Typography>
       </div>
       <Grid2 container spacing={2}>
@@ -35,7 +42,8 @@ export function DashboardPage({ incidents, feeds }: { incidents: Incident[]; fee
         </Grid2>
       </Grid2>
       <Alert severity="info" sx={{ alignItems: "center" }}>
-        Для демо-сценария: создайте инцидент, запустите extraction, подтвердите индикаторы и соберите feed.
+        Для демо-сценария: создайте инцидент, запустите extraction, подтвердите
+        индикаторы и соберите feed.
       </Alert>
     </Stack>
   );

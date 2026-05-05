@@ -45,5 +45,7 @@ export interface Feed {
   name: string;
   incident_id: number;
   created_at: string;
+  stix_bundle_path: string | null;
+  stix_exported_at: string | null;
   iocs: Ioc[];
 }

@@ -43,7 +43,12 @@ export interface StixRelationship extends StixBaseObject {
   target_ref?: string;
 }
 
-export type StixObject = StixReport | StixIndicator | StixAttackPattern | StixRelationship | StixBaseObject;
+export type StixObject =
+  | StixReport
+  | StixIndicator
+  | StixAttackPattern
+  | StixRelationship
+  | StixBaseObject;
 
 export interface StixBundle {
   type: "bundle";

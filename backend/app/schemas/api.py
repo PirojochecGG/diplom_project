@@ -81,6 +81,8 @@ class FeedRead(BaseModel):
     name: str
     incident_id: int
     created_at: datetime
+    stix_bundle_path: str | None
+    stix_exported_at: datetime | None
     iocs: list[IocRead]
 
     model_config = ConfigDict(from_attributes=True)

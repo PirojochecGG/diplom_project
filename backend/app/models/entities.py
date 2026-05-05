@@ -123,5 +123,7 @@ class Feed(Base):
     name: Mapped[str] = mapped_column(String(255))
     incident_id: Mapped[int] = mapped_column(ForeignKey("incidents.id"), index=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+    stix_bundle_path: Mapped[str | None] = mapped_column(String(1024), nullable=True)
+    stix_exported_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
     iocs: Mapped[list[Ioc]] = relationship(secondary=feed_ioc, back_populates="feeds")
