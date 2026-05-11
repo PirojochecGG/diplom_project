@@ -60,7 +60,15 @@ export function Layout({ children }: { children: ReactNode }) {
         }}
       >
         <Toolbar>
-          <Typography variant="h6" sx={{ fontWeight: 700 }}>
+          <Typography
+            variant="h6"
+            sx={{
+              color: appColors.secondary,
+              fontFamily: `"Lobster", cursive`,
+              fontSize: "1.7rem",
+              fontWeight: 400,
+            }}
+          >
             CTI IoC Feed Prototype
           </Typography>
         </Toolbar>
@@ -78,7 +86,15 @@ export function Layout({ children }: { children: ReactNode }) {
         }}
       >
         <Toolbar>
-          <Typography variant="h6" sx={{ fontWeight: 800 }}>
+          <Typography
+            variant="h6"
+            sx={{
+              color: appColors.secondary,
+              fontFamily: `"Lobster", cursive`,
+              fontSize: "1.9rem",
+              fontWeight: 400,
+            }}
+          >
             Cyber Threat Intel
           </Typography>
         </Toolbar>

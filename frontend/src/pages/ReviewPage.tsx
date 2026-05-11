@@ -10,12 +10,14 @@ import {
   Table,
   TableBody,
   TableCell,
+  TableContainer,
   TableHead,
   TableRow,
   TextField,
   Typography,
 } from "@mui/material";
 import { useEffect, useState } from "react";
+import { appColors } from "../theme/theme";
 import { AttackTechnique, Incident, IocStatus } from "../types/api";
 
 interface Props {
@@ -33,6 +35,33 @@ interface Props {
     }>,
   ) => Promise<void>;
 }
+
+const REVIEW_TABLE_MAX_HEIGHT = 700;
+
+const reviewTableScrollSx = {
+  maxHeight: REVIEW_TABLE_MAX_HEIGHT,
+  scrollbarColor: `${appColors.secondary} ${appColors.surfaceElevated}`,
+  scrollbarWidth: "thin",
+  "&::-webkit-scrollbar": {
+    width: 10,
+    height: 10,
+  },
+  "&::-webkit-scrollbar-track": {
+    backgroundColor: appColors.surfaceElevated,
+    borderRadius: 8,
+  },
+  "&::-webkit-scrollbar-thumb": {
+    backgroundColor: appColors.secondary,
+    border: `2px solid ${appColors.surfaceElevated}`,
+    borderRadius: 8,
+  },
+  "&::-webkit-scrollbar-thumb:hover": {
+    backgroundColor: appColors.primary,
+  },
+  "&::-webkit-scrollbar-corner": {
+    backgroundColor: appColors.surfaceElevated,
+  },
+};
 
 export function ReviewPage({
   incidents,
@@ -156,154 +185,164 @@ export function ReviewPage({
                 Save
               </Button>
             </Stack>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell>Type</TableCell>
-                  <TableCell>Value</TableCell>
-                  <TableCell>Status</TableCell>
-                  <TableCell>Confidence</TableCell>
-                  <TableCell>Description</TableCell>
-                  <TableCell>ATT&CK</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {incident.iocs.map((ioc) => (
-                  <TableRow key={ioc.id}>
-                    <TableCell>
-                      <Chip size="small" label={ioc.type} />
-                    </TableCell>
-                    <TableCell sx={{ minWidth: 220 }}>
-                      {ioc.normalized_value}
-                    </TableCell>
-                    <TableCell>
-                      <TextField
-                        select
-                        size="small"
-                        value={drafts[ioc.id]?.status ?? ioc.status}
-                        onChange={(event) =>
-                          setDrafts((current) => ({
-                            ...current,
-                            [ioc.id]: {
-                              ...(current[ioc.id] ?? {
-                                status: ioc.status,
-                                description: ioc.description ?? "",
-                                confidence: ioc.confidence,
-                                attackTechniqueIds: ioc.attack_techniques.map(
-                                  (item) => item.id,
-                                ),
-                              }),
-                              status: event.target.value as IocStatus,
-                            },
-                          }))
-                        }
-                      >
-                        <MenuItem value="candidate">candidate</MenuItem>
-                        <MenuItem value="confirmed">confirmed</MenuItem>
-                        <MenuItem value="rejected">rejected</MenuItem>
-                      </TextField>
-                    </TableCell>
-                    <TableCell>
-                      <TextField
-                        type="number"
-                        size="small"
-                        value={drafts[ioc.id]?.confidence ?? ioc.confidence}
-                        onChange={(event) =>
-                          setDrafts((current) => ({
-                            ...current,
-                            [ioc.id]: {
-                              ...(current[ioc.id] ?? {
-                                status: ioc.status,
-                                description: ioc.description ?? "",
-                                confidence: ioc.confidence,
-                                attackTechniqueIds: ioc.attack_techniques.map(
-                                  (item) => item.id,
-                                ),
-                              }),
-                              confidence: Number(event.target.value),
-                            },
-                          }))
-                        }
-                        inputProps={{ min: 0, max: 1, step: 0.05 }}
-                        sx={{ width: 90 }}
-                      />
-                    </TableCell>
-                    <TableCell sx={{ minWidth: 220 }}>
-                      <TextField
-                        size="small"
-                        fullWidth
-                        value={
-                          drafts[ioc.id]?.description ?? ioc.description ?? ""
-                        }
-                        onChange={(event) =>
-                          setDrafts((current) => ({
-                            ...current,
-                            [ioc.id]: {
-                              ...(current[ioc.id] ?? {
-                                status: ioc.status,
-                                description: ioc.description ?? "",
-                                confidence: ioc.confidence,
-                                attackTechniqueIds: ioc.attack_techniques.map(
-                                  (item) => item.id,
-                                ),
-                              }),
-                              description: event.target.value,
-                            },
-                          }))
-                        }
-                      />
-                    </TableCell>
-                    <TableCell sx={{ minWidth: 280 }}>
-                      <Autocomplete
-                        multiple
-                        options={techniques}
-                        value={techniques.filter((item) =>
-                          (drafts[ioc.id]?.attackTechniqueIds ?? []).includes(
-                            item.id,
-                          ),
-                        )}
-                        getOptionLabel={(option) =>
-                          `${option.attack_id} ${option.technique_name}`
-                        }
-                        renderInput={(params) => (
-                          <TextField
-                            {...params}
-                            size="small"
-                            placeholder="Select techniques"
-                          />
-                        )}
-                        onChange={(_, values) =>
-                          setDrafts((current) => ({
-                            ...current,
-                            [ioc.id]: {
-                              ...(current[ioc.id] ?? {
-                                status: ioc.status,
-                                description: ioc.description ?? "",
-                                confidence: ioc.confidence,
-                                attackTechniqueIds: ioc.attack_techniques.map(
-                                  (item) => item.id,
-                                ),
-                              }),
-                              attackTechniqueIds: values.map((item) => item.id),
-                            },
-                          }))
-                        }
-                        renderTags={(value, getTagProps) =>
-                          value.map((option, index) => (
-                            <Chip
-                              {...getTagProps({ index })}
-                              key={option.id}
-                              size="small"
-                              label={option.attack_id}
-                            />
-                          ))
-                        }
-                      />
-                    </TableCell>
+            <TableContainer sx={reviewTableScrollSx}>
+              <Table stickyHeader>
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Type</TableCell>
+                    <TableCell>Value</TableCell>
+                    <TableCell>Status</TableCell>
+                    <TableCell>Confidence</TableCell>
+                    <TableCell>Description</TableCell>
+                    <TableCell>ATT&CK</TableCell>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHead>
+                <TableBody>
+                  {incident.iocs.map((ioc) => (
+                    <TableRow key={ioc.id}>
+                      <TableCell>
+                        <Chip size="small" label={ioc.type} />
+                      </TableCell>
+                      <TableCell sx={{ minWidth: 220 }}>
+                        {ioc.normalized_value}
+                      </TableCell>
+                      <TableCell>
+                        <TextField
+                          select
+                          size="small"
+                          value={drafts[ioc.id]?.status ?? ioc.status}
+                          onChange={(event) =>
+                            setDrafts((current) => ({
+                              ...current,
+                              [ioc.id]: {
+                                ...(current[ioc.id] ?? {
+                                  status: ioc.status,
+                                  description: ioc.description ?? "",
+                                  confidence: ioc.confidence,
+                                  attackTechniqueIds:
+                                    ioc.attack_techniques.map(
+                                      (item) => item.id,
+                                    ),
+                                }),
+                                status: event.target.value as IocStatus,
+                              },
+                            }))
+                          }
+                        >
+                          <MenuItem value="candidate">candidate</MenuItem>
+                          <MenuItem value="confirmed">confirmed</MenuItem>
+                          <MenuItem value="rejected">rejected</MenuItem>
+                        </TextField>
+                      </TableCell>
+                      <TableCell>
+                        <TextField
+                          type="number"
+                          size="small"
+                          value={drafts[ioc.id]?.confidence ?? ioc.confidence}
+                          onChange={(event) =>
+                            setDrafts((current) => ({
+                              ...current,
+                              [ioc.id]: {
+                                ...(current[ioc.id] ?? {
+                                  status: ioc.status,
+                                  description: ioc.description ?? "",
+                                  confidence: ioc.confidence,
+                                  attackTechniqueIds:
+                                    ioc.attack_techniques.map(
+                                      (item) => item.id,
+                                    ),
+                                }),
+                                confidence: Number(event.target.value),
+                              },
+                            }))
+                          }
+                          inputProps={{ min: 0, max: 1, step: 0.05 }}
+                          sx={{ width: 90 }}
+                        />
+                      </TableCell>
+                      <TableCell sx={{ minWidth: 220 }}>
+                        <TextField
+                          size="small"
+                          fullWidth
+                          value={
+                            drafts[ioc.id]?.description ??
+                            ioc.description ??
+                            ""
+                          }
+                          onChange={(event) =>
+                            setDrafts((current) => ({
+                              ...current,
+                              [ioc.id]: {
+                                ...(current[ioc.id] ?? {
+                                  status: ioc.status,
+                                  description: ioc.description ?? "",
+                                  confidence: ioc.confidence,
+                                  attackTechniqueIds:
+                                    ioc.attack_techniques.map(
+                                      (item) => item.id,
+                                    ),
+                                }),
+                                description: event.target.value,
+                              },
+                            }))
+                          }
+                        />
+                      </TableCell>
+                      <TableCell sx={{ minWidth: 280 }}>
+                        <Autocomplete
+                          multiple
+                          options={techniques}
+                          value={techniques.filter((item) =>
+                            (drafts[ioc.id]?.attackTechniqueIds ?? []).includes(
+                              item.id,
+                            ),
+                          )}
+                          getOptionLabel={(option) =>
+                            `${option.attack_id} ${option.technique_name}`
+                          }
+                          renderInput={(params) => (
+                            <TextField
+                              {...params}
+                              size="small"
+                              placeholder="Select techniques"
+                            />
+                          )}
+                          onChange={(_, values) =>
+                            setDrafts((current) => ({
+                              ...current,
+                              [ioc.id]: {
+                                ...(current[ioc.id] ?? {
+                                  status: ioc.status,
+                                  description: ioc.description ?? "",
+                                  confidence: ioc.confidence,
+                                  attackTechniqueIds:
+                                    ioc.attack_techniques.map(
+                                      (item) => item.id,
+                                    ),
+                                }),
+                                attackTechniqueIds: values.map(
+                                  (item) => item.id,
+                                ),
+                              },
+                            }))
+                          }
+                          renderTags={(value, getTagProps) =>
+                            value.map((option, index) => (
+                              <Chip
+                                {...getTagProps({ index })}
+                                key={option.id}
+                                size="small"
+                                label={option.attack_id}
+                              />
+                            ))
+                          }
+                        />
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
           </Stack>
         </Paper>
       )}

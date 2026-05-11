@@ -98,8 +98,7 @@ export function StixBundleViewer({
             boxSizing: "border-box",
             minHeight: 560,
             overflow: "hidden",
-            background:
-              `radial-gradient(circle at top, ${appColors.primarySoft}, transparent 35%), ${appColors.surfaceMuted}`,
+            background: `radial-gradient(circle at top, ${appColors.primarySoft}, transparent 35%), ${appColors.surfaceMuted}`,
           }}
         >
           <Box
@@ -154,7 +153,7 @@ export function StixBundleViewer({
                   legendOptions={{
                     display: true,
                     position: "bottom-left",
-                  containerStyle: {
+                    containerStyle: {
                       background: appColors.surfaceMuted,
                       border: `1px solid ${appColors.borderStrong}`,
                       borderRadius: "12px",

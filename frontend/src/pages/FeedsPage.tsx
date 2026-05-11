@@ -31,6 +31,39 @@ interface Props {
   onExportFeed: (id: number) => Promise<void>;
 }
 
+const FEED_JSON_PREVIEW_MAX_HEIGHT = 420;
+
+const feedJsonPreviewSx = {
+  maxHeight: FEED_JSON_PREVIEW_MAX_HEIGHT,
+  overflow: "auto",
+  scrollbarColor: `${appColors.secondary} ${appColors.surfaceElevated}`,
+  scrollbarWidth: "thin",
+  "&::-webkit-scrollbar": {
+    width: 10,
+    height: 10,
+  },
+  "&::-webkit-scrollbar-track": {
+    backgroundColor: appColors.surfaceElevated,
+    borderRadius: 8,
+  },
+  "&::-webkit-scrollbar-thumb": {
+    backgroundColor: appColors.secondary,
+    border: `2px solid ${appColors.surfaceElevated}`,
+    borderRadius: 8,
+  },
+  "&::-webkit-scrollbar-thumb:hover": {
+    backgroundColor: appColors.primary,
+  },
+  "&::-webkit-scrollbar-corner": {
+    backgroundColor: appColors.surfaceElevated,
+  },
+};
+
+const feedJsonPaperSx = {
+  p: 2,
+  backgroundColor: appColors.surfaceMuted,
+};
+
 export function FeedsPage({
   incidents,
   feeds,
@@ -147,23 +180,18 @@ export function FeedsPage({
             </Alert>
           )}
           {stixBundle && (
-            <Paper
-              variant="outlined"
-              sx={{
-                p: 2,
-                backgroundColor: appColors.surfaceMuted,
-                overflow: "auto",
-              }}
-            >
-              <pre
-                style={{
-                  margin: 0,
-                  whiteSpace: "pre-wrap",
-                  wordBreak: "break-word",
-                }}
-              >
-                {JSON.stringify(stixBundle, null, 2)}
-              </pre>
+            <Paper variant="outlined" sx={feedJsonPaperSx}>
+              <Box sx={feedJsonPreviewSx}>
+                <pre
+                  style={{
+                    margin: 0,
+                    whiteSpace: "pre-wrap",
+                    wordBreak: "break-word",
+                  }}
+                >
+                  {JSON.stringify(stixBundle, null, 2)}
+                </pre>
+              </Box>
             </Paper>
           )}
         </Stack>

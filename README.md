@@ -42,7 +42,7 @@
 
 При запуске backend читает эти файлы и заполняет справочник ATT&CK техник в SQLite. Если файлы отсутствуют, система использует небольшой встроенный fallback-набор техник.
 
-Остальные файлы в `backend/data` являются локальными runtime-артефактами и не должны попадать в Git: `cti.db`, экспортированные STIX JSON и временные файлы.
+Остальные файлы в `backend/data` являются локальными runtime-файлами и не должны попадать в Git: `cti.db`, экспортированные STIX JSON и временные файлы.
 
 ## Требования
 
@@ -69,8 +69,8 @@ npm --version
 cd backend
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
-python -m pip install -r requirements.txt
-python -m uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
+pip install -r requirements.txt
+uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
 ```
 
 Если PowerShell блокирует активацию виртуального окружения, выполните:
@@ -122,8 +122,8 @@ Frontend проксирует `/api` и `/health` на backend `http://127.0.0.1
 cd backend
 python3 -m venv .venv
 source .venv/bin/activate
-python -m pip install -r requirements.txt
-python -m uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
+pip install -r requirements.txt
+uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
 ```
 
 Проверка backend:

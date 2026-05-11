@@ -25,10 +25,7 @@ export function DashboardPage({
     <Stack spacing={3}>
       <div>
         <Typography variant="h4">Operational overview</Typography>
-        <Typography color="text.secondary">
-          Минимальная витрина для практической части: события, извлеченные IoC,
-          ATT&CK и экспорт feed в STIX.
-        </Typography>
+
       </div>
       <Grid2 container spacing={2}>
         <Grid2 size={{ xs: 12, md: 4 }}>
@@ -42,8 +39,8 @@ export function DashboardPage({
         </Grid2>
       </Grid2>
       <Alert severity="info" sx={{ alignItems: "center" }}>
-        Для демо-сценария: создайте инцидент, запустите extraction, подтвердите
-        индикаторы и соберите feed.
+        For the demo workflow: create an incident, run extraction, confirm the
+        indicators, and build a feed.
       </Alert>
     </Stack>
   );
