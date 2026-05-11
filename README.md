@@ -1,7 +1,7 @@
 # CTI IoC Feed Prototype
 
 Веб-система для обработки описаний киберинцидентов, извлечения IoC, ручной проверки индикаторов, привязки к MITRE ATT&CK и экспорта подтвержденных индикаторов в STIX 2.1 JSON.
-![Работа находится здесь. Кликни меня](https://github.com/PirojochecGG/diplom_project)
+![Работа находится здесь. Кликни меня](https://github.com/PirojochecGG/diplom_project)![alt text](docs/images.jpg)
 
 
 ## Возможности
